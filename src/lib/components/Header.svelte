@@ -9,17 +9,18 @@
 	import { ChevronDown, Menu, X } from '@lucide/svelte';
 	import * as Sidebar from './ui/sidebar';
 	import { Collapsible } from 'bits-ui';
+	import Button from './ui/button/button.svelte';
 
 	const isMobile = new IsMobile();
 </script>
 
-<header class="shadow-sm">
+<header class="border-b border-gray-200 dark:border-gray-800">
 	<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
 		<Label>
 			<a href="/">Dev Guides</a>
 		</Label>
 		<div class="flex items-center gap-4">
-			<Input type="search" placeholder="Search..." class="w-48 max-w-xs" />
+			<Input type="search" placeholder="Search..." class="w-56 max-w-xs rounded-md" />
 			<nav>
 				<NavigationMenu.Root viewport={isMobile.current} class="hidden md:block">
 					<NavigationMenu.List class="flex gap-1">
@@ -61,7 +62,7 @@
 						><Menu class="size-6" /></Drawer.Trigger
 					>
 					<Drawer.Content class="before:rounded-sm data-[vaul-drawer-direction=right]:w-2/4">
-						<Drawer.Close class="absolute top-4 right-4 p-1"><X size-6 /></Drawer.Close>
+						<Drawer.Close class="absolute top-4 right-4 p-1"><X class="size-6" /></Drawer.Close>
 						<nav class="mt-12">
 							<Sidebar.Provider
 								><Sidebar.Menu
@@ -92,12 +93,30 @@
 										{#snippet child({ props })}
 											<a href="/about" {...props}>About</a>
 										{/snippet}
-									</Sidebar.MenuButton></Sidebar.Menu
-								></Sidebar.Provider
-							>
+									</Sidebar.MenuButton>
+									<Sidebar.MenuButton>
+										{#snippet child({ props })}
+											<a href="/login" {...props}>Login</a>
+										{/snippet}
+									</Sidebar.MenuButton>
+									<Sidebar.MenuButton>
+										{#snippet child({ props })}
+											<a href="/register" {...props}>Register</a>
+										{/snippet}
+									</Sidebar.MenuButton>
+								</Sidebar.Menu>
+							</Sidebar.Provider>
 						</nav>
 					</Drawer.Content>
 				</Drawer.Root>
+				<section class="hidden md:block">
+					<Button variant="secondary" size="default">
+						<a href="/login">Login</a>
+					</Button>
+					<Button size="default">
+						<a href="/register">Register</a>
+					</Button>
+				</section>
 			</section>
 		</div>
 	</div>

@@ -14,5 +14,5 @@
 <ModeWatcher />
 <Header />
 <Tooltip.Provider>
-	{@render children()}
+	<main>{@render children()}</main>
 </Tooltip.Provider>
