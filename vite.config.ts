@@ -4,7 +4,5 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
-	server: {
-		allowedHosts: ['savviest.online']
-	}
+	server: { allowedHosts: ['savviest.online'] }
 });
