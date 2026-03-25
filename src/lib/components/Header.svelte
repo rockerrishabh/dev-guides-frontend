@@ -57,7 +57,9 @@
 			<section class="flex items-center gap-2">
 				<ThemeToggle />
 				<Drawer.Root direction="right" noBodyStyles={true}>
-					<Drawer.Trigger class="block md:hidden"><Menu class="size-6" /></Drawer.Trigger>
+					<Drawer.Trigger class="block md:hidden" aria-label="Menu"
+						><Menu class="size-6" /></Drawer.Trigger
+					>
 					<Drawer.Content class="before:rounded-sm data-[vaul-drawer-direction=right]:w-2/4">
 						<Drawer.Close class="absolute top-4 right-4 p-1"><X size-6 /></Drawer.Close>
 						<nav class="mt-12">
