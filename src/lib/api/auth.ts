@@ -105,7 +105,7 @@ export async function verify2FA(input: Verify2FAInput): Promise<LoginSuccess> {
 
 export async function refresh(): Promise<LoginSuccess | null> {
 	try {
-		const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+		const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
 		const res = await fetch(`${API_BASE}/auth/refresh`, {
 			method: 'POST',
 			credentials: 'include'
@@ -124,7 +124,7 @@ export async function refresh(): Promise<LoginSuccess | null> {
 // ─── Me ─────────────────────────────────────────────────────────────────────
 
 export async function getMe(token?: string): Promise<User> {
-	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
 	const res = await fetch(`${API_BASE}/auth/me`, {
 		headers: { Authorization: `Bearer ${token ?? ''}` },
 		credentials: 'include'
