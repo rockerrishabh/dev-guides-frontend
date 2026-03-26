@@ -1,3 +1,4 @@
+import { PUBLIC_API_URL } from '$env/static/public';
 import { apiFetch, setAccessToken } from './client';
 
 // ─── Shared types mirroring the backend ────────────────────────────────────
@@ -51,7 +52,7 @@ export type LoginResult = { type: 'success'; data: LoginSuccess } | { type: '2fa
 
 export async function login(input: LoginInput): Promise<LoginResult> {
 	// Backend responds 200 for full login, 202 for 2FA required.
-	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
+	const API_BASE = PUBLIC_API_URL ?? 'http://localhost:8080/v1';
 
 	const res = await fetch(`${API_BASE}/auth/login`, {
 		method: 'POST',
@@ -105,7 +106,7 @@ export async function verify2FA(input: Verify2FAInput): Promise<LoginSuccess> {
 
 export async function refresh(): Promise<LoginSuccess | null> {
 	try {
-		const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
+		const API_BASE = PUBLIC_API_URL ?? 'http://localhost:8080/v1';
 		const res = await fetch(`${API_BASE}/auth/refresh`, {
 			method: 'POST',
 			credentials: 'include'
@@ -124,7 +125,7 @@ export async function refresh(): Promise<LoginSuccess | null> {
 // ─── Me ─────────────────────────────────────────────────────────────────────
 
 export async function getMe(token?: string): Promise<User> {
-	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
+	const API_BASE = PUBLIC_API_URL ?? 'http://localhost:8080/v1';
 	const res = await fetch(`${API_BASE}/auth/me`, {
 		headers: { Authorization: `Bearer ${token ?? ''}` },
 		credentials: 'include'
@@ -137,7 +138,7 @@ export async function getMe(token?: string): Promise<User> {
 
 export async function logout(): Promise<void> {
 	setAccessToken(null);
-	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
+	const API_BASE = PUBLIC_API_URL ?? 'http://localhost:8080/v1';
 	try {
 		await fetch(`${API_BASE}/auth/logout`, {
 			method: 'POST',
@@ -163,7 +164,7 @@ export async function googleLogin(accessToken: string): Promise<LoginSuccess> {
 // ─── Verify Email ────────────────────────────────────────────────────────────
 
 export async function verifyEmail(token: string, email: string | null): Promise<void> {
-	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
+	const API_BASE = PUBLIC_API_URL ?? 'http://localhost:8080/v1';
 	const url = new URL(`${API_BASE}/auth/verify-email`);
 	url.searchParams.set('token', token);
 	if (email) url.searchParams.set('email', email);
