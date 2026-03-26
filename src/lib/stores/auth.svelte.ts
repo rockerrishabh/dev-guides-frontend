@@ -9,9 +9,10 @@ interface AuthState {
 }
 
 function createAuthStore() {
-	let state = $state<AuthState>({
+	let state = $state<AuthState & { socialLoading: boolean }>({
 		user: null,
 		loading: false,
+		socialLoading: false,
 		initialized: false
 	});
 
@@ -24,6 +25,12 @@ function createAuthStore() {
 		},
 		get initialized() {
 			return state.initialized;
+		},
+		get socialLoading() {
+			return state.socialLoading;
+		},
+		setSocialLoading(val: boolean) {
+			state.socialLoading = val;
 		},
 		get isAuthenticated() {
 			return state.user !== null;

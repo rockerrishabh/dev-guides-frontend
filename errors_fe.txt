@@ -1,0 +1,12 @@
+src/lib/components/ui/badge/index.ts(2,10): error TS2614: Module '"*.svelte"' has no exported member 'badgeVariants'. Did you mean to use 'import badgeVariants from "*.svelte"' instead?
+src/lib/components/ui/badge/index.ts(2,30): error TS2614: Module '"*.svelte"' has no exported member 'BadgeVariant'. Did you mean to use 'import BadgeVariant from "*.svelte"' instead?
+src/lib/components/ui/button/index.ts(2,7): error TS2614: Module '"*.svelte"' has no exported member 'ButtonProps'. Did you mean to use 'import ButtonProps from "*.svelte"' instead?
+src/lib/components/ui/button/index.ts(3,7): error TS2614: Module '"*.svelte"' has no exported member 'ButtonSize'. Did you mean to use 'import ButtonSize from "*.svelte"' instead?
+src/lib/components/ui/button/index.ts(4,7): error TS2614: Module '"*.svelte"' has no exported member 'ButtonVariant'. Did you mean to use 'import ButtonVariant from "*.svelte"' instead?
+src/lib/components/ui/button/index.ts(5,2): error TS2614: Module '"*.svelte"' has no exported member 'buttonVariants'. Did you mean to use 'import buttonVariants from "*.svelte"' instead?
+src/lib/components/ui/tabs/index.ts(3,16): error TS2614: Module '"*.svelte"' has no exported member 'tabsListVariants'. Did you mean to use 'import tabsListVariants from "*.svelte"' instead?
+src/lib/components/ui/tabs/index.ts(3,39): error TS2614: Module '"*.svelte"' has no exported member 'TabsListVariant'. Did you mean to use 'import TabsListVariant from "*.svelte"' instead?
+src/lib/components/ui/toggle/index.ts(3,2): error TS2614: Module '"*.svelte"' has no exported member 'toggleVariants'. Did you mean to use 'import toggleVariants from "*.svelte"' instead?
+src/lib/components/ui/toggle/index.ts(4,7): error TS2614: Module '"*.svelte"' has no exported member 'ToggleSize'. Did you mean to use 'import ToggleSize from "*.svelte"' instead?
+src/lib/components/ui/toggle/index.ts(5,7): error TS2614: Module '"*.svelte"' has no exported member 'ToggleVariant'. Did you mean to use 'import ToggleVariant from "*.svelte"' instead?
+src/lib/components/ui/toggle/index.ts(6,7): error TS2614: Module '"*.svelte"' has no exported member 'ToggleVariants'. Did you mean to use 'import ToggleVariants from "*.svelte"' instead?

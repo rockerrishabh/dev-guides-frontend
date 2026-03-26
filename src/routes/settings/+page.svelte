@@ -18,14 +18,16 @@
 	import { toast } from 'svelte-sonner';
 	import {
 		User,
-		Lock,
 		ShieldCheck,
 		Monitor,
-		LogOut,
 		Trash2,
-		ShieldAlert,
 		Globe,
-		MapPin
+		MapPin,
+		Phone,
+		Building,
+		Hash,
+		FileText,
+		Link as LinkIcon
 	} from '@lucide/svelte';
 	import {
 		getSessions,
@@ -33,7 +35,10 @@
 		changePassword,
 		updateAccount,
 		disable2FA,
-		type Session
+		getProfile,
+		updateProfile,
+		type Session,
+		type UserProfile
 	} from '$lib/api/auth';
 
 	// Protected route guard
@@ -48,9 +53,10 @@
 	let updatingGeneral = $state(false);
 
 	$effect(() => {
-		if (auth.user && auth.user.name !== name && !updatingGeneral) {
+		if (auth.user && !updatingGeneral) {
+			const serverName = auth.user.name;
 			untrack(() => {
-				name = auth.user!.name;
+				name = serverName;
 			});
 		}
 	});
@@ -61,6 +67,18 @@
 	let confirmPassword = $state('');
 	let updatingPassword = $state(false);
 
+	// Profile state
+	let bio = $state('');
+	let phoneNumber = $state('');
+	let address = $state('');
+	let city = $state('');
+	let stateName = $state(''); // 'state' is a reserved keyword in Svelte 5 for some things, being safe
+	let country = $state('');
+	let zipCode = $state('');
+	let website = $state('');
+	let profile = $state<UserProfile | null>(null);
+	let updatingProfile = $state(false);
+
 	// Sessions tab state
 	let activeSessions = $state<Session[]>([]);
 	let loadingSessions = $state(true);
@@ -69,15 +87,49 @@
 		if (auth.initialized && auth.isAuthenticated) {
 			untrack(async () => {
 				try {
+					const res = await getProfile();
+					profile = res.profile;
+					if (profile) {
+						bio = profile.bio ?? '';
+						phoneNumber = profile.phone_number ?? '';
+						address = profile.address ?? '';
+						city = profile.city ?? '';
+						stateName = profile.state ?? '';
+						country = profile.country ?? '';
+						zipCode = profile.zip_code ?? '';
+						website = profile.website ?? '';
+					}
 					activeSessions = await getSessions();
 				} catch (e: any) {
-					console.error('Session load failed:', e);
+					console.error('Session/Profile load failed:', e);
 				} finally {
 					loadingSessions = false;
 				}
 			});
 		}
 	});
+
+	async function handleUpdateProfile() {
+		updatingProfile = true;
+		try {
+			const updated = await updateProfile({
+				bio,
+				phone_number: phoneNumber,
+				address,
+				city,
+				state: stateName,
+				country,
+				zip_code: zipCode,
+				website
+			});
+			profile = updated;
+			toast.success('Profile updated successfully!');
+		} catch (e: any) {
+			toast.error(e.message || 'Profile update failed.');
+		} finally {
+			updatingProfile = false;
+		}
+	}
 
 	async function handleUpdateGeneral() {
 		if (!name || name === auth.user?.name) return;
@@ -94,6 +146,7 @@
 	}
 
 	async function handleChangePassword() {
+		if (!auth.user) return;
 		if (newPassword !== confirmPassword) {
 			toast.error('Passwords do not match');
 			return;
@@ -101,13 +154,16 @@
 		updatingPassword = true;
 		try {
 			await changePassword({
-				current_password: currentPassword,
+				current_password: auth.user.has_password ? currentPassword : undefined,
 				new_password: newPassword
 			});
 			currentPassword = '';
 			newPassword = '';
 			confirmPassword = '';
-			toast.success('Password changed successfully.');
+			if (!auth.user.has_password) {
+				auth.setUser({ ...auth.user, has_password: true });
+			}
+			toast.success(auth.user.has_password ? 'Password updated successfully.' : 'Password set successfully.');
 		} catch (e: any) {
 			toast.error(e.message || 'Change password failed.');
 		} finally {
@@ -150,6 +206,15 @@
 			<h1 class="text-3xl font-bold tracking-tight">Settings</h1>
 			<p class="text-muted-foreground">Manage your account settings, security, and sessions.</p>
 		</header>
+
+		<div class="mb-6 flex justify-end">
+			<a href="/profile/{auth.user.id}">
+				<Button variant="outline" size="sm">
+					<User class="mr-2 size-4" />
+					View Public Profile
+				</Button>
+			</a>
+		</div>
 
 		<Tabs.Root value="general" class="space-y-6">
 			<Tabs.List class="w-full justify-start border-b bg-transparent p-0">
@@ -205,7 +270,108 @@
 							{#if updatingGeneral}
 								<Spinner class="mr-2 size-4" />
 							{/if}
-							Save Changes
+							Save Profile
+						</Button>
+					</CardFooter>
+				</Card>
+
+				<Card>
+					<CardHeader>
+						<CardTitle>Detailed Profile</CardTitle>
+						<CardDescription>Share more about yourself with the community.</CardDescription>
+					</CardHeader>
+					<CardContent class="grid gap-6">
+						<div class="grid gap-2">
+							<Label for="bio">Bio</Label>
+							<div class="relative">
+								<FileText class="absolute top-3 left-3 size-4 text-muted-foreground" />
+								<textarea
+									id="bio"
+									bind:value={bio}
+									placeholder="Tell us about yourself..."
+									class="flex min-h-[100px] w-full rounded-md border border-input bg-background px-9 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+								></textarea>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+							<div class="grid gap-2">
+								<Label for="website">Website</Label>
+								<div class="relative">
+									<LinkIcon class="absolute top-3 left-3 size-4 text-muted-foreground" />
+									<Input
+										id="website"
+										bind:value={website}
+										placeholder="https://example.com"
+										class="pl-9"
+									/>
+								</div>
+							</div>
+							<div class="grid gap-2">
+								<Label for="phone">Phone Number</Label>
+								<div class="relative">
+									<Phone class="absolute top-3 left-3 size-4 text-muted-foreground" />
+									<Input
+										id="phone"
+										bind:value={phoneNumber}
+										placeholder="+1 (555) 000-0000"
+										class="pl-9"
+									/>
+								</div>
+							</div>
+						</div>
+
+						<div class="grid gap-2">
+							<Label for="address">Address</Label>
+							<div class="relative">
+								<MapPin class="absolute top-3 left-3 size-4 text-muted-foreground" />
+								<Input
+									id="address"
+									bind:value={address}
+									placeholder="123 Street Ave"
+									class="pl-9"
+								/>
+							</div>
+						</div>
+
+						<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+							<div class="grid gap-2">
+								<Label for="city">City</Label>
+								<div class="relative">
+									<Building class="absolute top-3 left-3 size-4 text-muted-foreground" />
+									<Input id="city" bind:value={city} placeholder="San Francisco" class="pl-9" />
+								</div>
+							</div>
+							<div class="grid gap-2">
+								<Label for="state">State / Province</Label>
+								<div class="relative">
+									<Globe class="absolute top-3 left-3 size-4 text-muted-foreground" />
+									<Input id="state" bind:value={stateName} placeholder="California" class="pl-9" />
+								</div>
+							</div>
+							<div class="grid gap-2">
+								<Label for="zip">Zip / Postal Code</Label>
+								<div class="relative">
+									<Hash class="absolute top-3 left-3 size-4 text-muted-foreground" />
+									<Input id="zip" bind:value={zipCode} placeholder="94103" class="pl-9" />
+								</div>
+							</div>
+						</div>
+
+						<div class="grid gap-2">
+							<Label for="country">Country</Label>
+							<div class="relative">
+								<Globe class="absolute top-3 left-3 size-4 text-muted-foreground" />
+								<Input id="country" bind:value={country} placeholder="United States" class="pl-9" />
+							</div>
+						</div>
+					</CardContent>
+					<CardFooter>
+						<Button onclick={handleUpdateProfile} disabled={updatingProfile}>
+							{#if updatingProfile}
+								<Spinner class="mr-2 size-4" />
+							{/if}
+							Save Detailed Profile
 						</Button>
 					</CardFooter>
 				</Card>
@@ -221,15 +387,17 @@
 							<CardDescription>Update your password to keep your account secure.</CardDescription>
 						</CardHeader>
 						<CardContent class="space-y-4">
-							<div class="grid gap-2">
-								<Label for="currentPassword">Current Password</Label>
-								<Input
-									id="currentPassword"
-									type="password"
-									bind:value={currentPassword}
-									class="max-w-md"
-								/>
-							</div>
+							{#if auth.user.has_password}
+								<div class="grid gap-2">
+									<Label for="currentPassword">Current Password</Label>
+									<Input
+										id="currentPassword"
+										type="password"
+										bind:value={currentPassword}
+										class="max-w-md"
+									/>
+								</div>
+							{/if}
 							<div class="grid gap-2">
 								<Label for="newPassword">New Password</Label>
 								<Input id="newPassword" type="password" bind:value={newPassword} class="max-w-md" />
@@ -247,12 +415,12 @@
 						<CardFooter>
 							<Button
 								onclick={handleChangePassword}
-								disabled={updatingPassword || !currentPassword || !newPassword}
+								disabled={updatingPassword || (auth.user.has_password && !currentPassword) || !newPassword}
 							>
 								{#if updatingPassword}
 									<Spinner class="mr-2 size-4" />
 								{/if}
-								Update Password
+								{auth.user.has_password ? 'Update Password' : 'Set Password'}
 							</Button>
 						</CardFooter>
 					</Card>

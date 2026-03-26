@@ -142,7 +142,7 @@
 					<Drawer.Trigger class="block md:hidden" aria-label="Menu"
 						><Menu class="size-6" /></Drawer.Trigger
 					>
-					<Drawer.Content class="before:rounded-sm data-[vaul-drawer-direction=right]:w-2/4">
+					<Drawer.Content class="p-0 before:inset-0 before:rounded-none data-[vaul-drawer-direction=right]:w-3/4 sm:data-[vaul-drawer-direction=right]:w-[400px]">
 						<Drawer.Close class="absolute top-4 right-4 p-1"><X class="size-6" /></Drawer.Close>
 						<nav class="mt-12 p-4">
 							<Input type="search" placeholder="Search..." class="mb-4 w-full rounded-md" />
