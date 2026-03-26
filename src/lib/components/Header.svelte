@@ -22,7 +22,11 @@
 			<a href="/">Dev Guides</a>
 		</Label>
 		<div class="flex items-center gap-2">
-			<Input type="search" placeholder="Search..." class="w-56 max-w-xs rounded-md" />
+			<Input
+				type="search"
+				placeholder="Search..."
+				class="hidden w-56 max-w-xs rounded-md md:block"
+			/>
 			<nav>
 				<NavigationMenu.Root viewport={isMobile.current} class="hidden md:block">
 					<NavigationMenu.List class="flex gap-1">
@@ -140,7 +144,8 @@
 					>
 					<Drawer.Content class="before:rounded-sm data-[vaul-drawer-direction=right]:w-2/4">
 						<Drawer.Close class="absolute top-4 right-4 p-1"><X class="size-6" /></Drawer.Close>
-						<nav class="mt-12">
+						<nav class="mt-12 p-4">
+							<Input type="search" placeholder="Search..." class="mb-4 w-full rounded-md" />
 							<Sidebar.Provider
 								><Sidebar.Menu
 									><Sidebar.MenuItem>
