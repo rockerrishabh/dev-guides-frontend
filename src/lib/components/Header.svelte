@@ -6,10 +6,12 @@
 	import ThemeToggle from './ThemeToggle.svelte';
 	import Input from './ui/input/input.svelte';
 	import * as Drawer from './ui/drawer';
-	import { ChevronDown, Menu, X } from '@lucide/svelte';
+	import { ChevronDown, Menu, X, LogOut, LayoutDashboard } from '@lucide/svelte';
 	import * as Sidebar from './ui/sidebar';
 	import { Collapsible } from 'bits-ui';
 	import Button from './ui/button/button.svelte';
+	import { auth } from '$lib/stores/auth.svelte';
+	import * as DropdownMenu from './ui/dropdown-menu';
 
 	const isMobile = new IsMobile();
 </script>
@@ -57,6 +59,73 @@
 			</nav>
 			<section class="flex items-center gap-2">
 				<ThemeToggle />
+
+				<!-- Desktop auth section -->
+				<section class="hidden md:flex md:items-center md:gap-2">
+					{#if auth.isAuthenticated && auth.user}
+						{@const user = auth.user}
+						<DropdownMenu.Root>
+							<DropdownMenu.Trigger>
+								{#snippet child({ props })}
+									<button
+										{...props}
+										class="flex items-center gap-2 rounded-full focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:outline-none"
+										aria-label="User menu"
+									>
+										{#if user.avatar_url}
+											<img
+												src={user.avatar_url}
+												alt={user.name}
+												class="size-8 rounded-full object-cover"
+											/>
+										{:else}
+											<div
+												class="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary"
+											>
+												{user.name.charAt(0).toUpperCase()}
+											</div>
+										{/if}
+										<span class="text-sm font-medium">{user.name.split(' ')[0]}</span>
+									</button>
+								{/snippet}
+							</DropdownMenu.Trigger>
+							<DropdownMenu.Content align="end" class="w-48">
+								<DropdownMenu.Label class="font-normal">
+									<div class="flex flex-col space-y-1">
+										<p class="text-sm leading-none font-medium">{user.name}</p>
+										<p class="text-xs leading-none text-muted-foreground">{user.email}</p>
+									</div>
+								</DropdownMenu.Label>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item>
+									{#snippet child({ props })}
+										<a href="/dashboard" class="flex cursor-pointer items-center" {...props}>
+											<LayoutDashboard class="mr-2 size-4" />
+											Dashboard
+										</a>
+									{/snippet}
+								</DropdownMenu.Item>
+								<DropdownMenu.Separator />
+								<DropdownMenu.Item
+									class="text-destructive focus:text-destructive"
+									onclick={() => auth.logout()}
+								>
+									<LogOut class="mr-2 size-4" />
+									Sign out
+								</DropdownMenu.Item>
+							</DropdownMenu.Content>
+						</DropdownMenu.Root>
+					{:else if auth.initialized}
+						<Button variant="secondary" size="default">
+							<a href="/login">Login</a>
+						</Button>
+						<Button size="default">
+							<a href="/register">Register</a>
+						</Button>
+					{/if}
+				</section>
+
+				<!-- Mobile drawer -->
 				<Drawer.Root direction="right" noBodyStyles={true}>
 					<Drawer.Trigger class="block md:hidden" aria-label="Menu"
 						><Menu class="size-6" /></Drawer.Trigger
@@ -89,34 +158,43 @@
 												</Sidebar.MenuSub>
 											</Collapsible.Content>
 										</Sidebar.MenuItem>
-									</Collapsible.Root><Sidebar.MenuButton>
+									</Collapsible.Root>
+									<Sidebar.MenuButton>
 										{#snippet child({ props })}
 											<a href="/about" {...props}>About</a>
 										{/snippet}
 									</Sidebar.MenuButton>
-									<Sidebar.MenuButton>
-										{#snippet child({ props })}
-											<a href="/login" {...props}>Login</a>
-										{/snippet}
-									</Sidebar.MenuButton>
-									<Sidebar.MenuButton>
-										{#snippet child({ props })}
-											<a href="/register" {...props}>Register</a>
-										{/snippet}
-									</Sidebar.MenuButton>
-								</Sidebar.Menu>
-							</Sidebar.Provider>
+
+									{#if auth.isAuthenticated && auth.user}
+										<Sidebar.MenuButton>
+											{#snippet child({ props })}
+												<a href="/dashboard" {...props}>
+													<LayoutDashboard class="mr-2 size-4" />
+													Dashboard
+												</a>
+											{/snippet}
+										</Sidebar.MenuButton>
+										<Sidebar.MenuButton onclick={() => auth.logout()}>
+											<LogOut class="mr-2 size-4" />
+											Sign out
+										</Sidebar.MenuButton>
+									{:else}
+										<Sidebar.MenuButton>
+											{#snippet child({ props })}
+												<a href="/login" {...props}>Login</a>
+											{/snippet}
+										</Sidebar.MenuButton>
+										<Sidebar.MenuButton>
+											{#snippet child({ props })}
+												<a href="/register" {...props}>Register</a>
+											{/snippet}
+										</Sidebar.MenuButton>
+									{/if}
+								</Sidebar.Menu></Sidebar.Provider
+							>
 						</nav>
 					</Drawer.Content>
 				</Drawer.Root>
-				<section class="hidden md:block">
-					<Button variant="secondary" size="default">
-						<a href="/login">Login</a>
-					</Button>
-					<Button size="default">
-						<a href="/register">Register</a>
-					</Button>
-				</section>
 			</section>
 		</div>
 	</div>
