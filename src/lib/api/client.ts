@@ -1,4 +1,4 @@
-const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
 
 // In-memory access token (not stored in localStorage to avoid XSS leakage).
 let _accessToken: string | null = null;
@@ -56,10 +56,7 @@ export class ApiRequestError extends Error {
 
 type FetchOptions = RequestInit & { skipAuth?: boolean };
 
-export async function apiFetch<T = unknown>(
-	path: string,
-	options: FetchOptions = {}
-): Promise<T> {
+export async function apiFetch<T = unknown>(path: string, options: FetchOptions = {}): Promise<T> {
 	const { skipAuth = false, ...fetchOptions } = options;
 
 	const headers = new Headers(fetchOptions.headers);

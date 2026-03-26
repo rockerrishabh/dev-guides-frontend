@@ -51,7 +51,7 @@ export type LoginResult = { type: 'success'; data: LoginSuccess } | { type: '2fa
 
 export async function login(input: LoginInput): Promise<LoginResult> {
 	// Backend responds 200 for full login, 202 for 2FA required.
-	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080';
+	const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:8080/v1';
 
 	const res = await fetch(`${API_BASE}/auth/login`, {
 		method: 'POST',
