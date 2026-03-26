@@ -19,7 +19,7 @@
 	import { superForm, defaults } from 'sveltekit-superforms';
 	import { zod4, zod4Client } from 'sveltekit-superforms/adapters';
 	import { Spinner } from '$lib/components/ui/spinner';
-	import { ShieldCheck } from '@lucide/svelte';
+	import { ShieldCheck, ArrowLeft } from '@lucide/svelte';
 
 	let setup = $state<{ secret: string; qr_code_url: string } | null>(null);
 	let loadingSetup = $state(false);
@@ -46,6 +46,9 @@
 			try {
 				await enable2FA({ secret: setup.secret, code: form.data.code });
 				enabled = true;
+				if (auth.user) {
+					auth.setUser({ ...auth.user, two_factor_enabled: true });
+				}
 				toast.success('Two-factor authentication enabled!');
 			} catch (e: unknown) {
 				apiError = e instanceof Error ? e.message : 'Failed to enable 2FA.';
@@ -55,17 +58,19 @@
 		}
 	});
 
+	import { untrack } from 'svelte';
+
+	// Modern guard
+	$effect(() => {
+		if (auth.initialized && !auth.isAuthenticated) {
+			untrack(() => goto('/login'));
+		}
+	});
+
 	onMount(async () => {
-		// Guard: must be logged in
-		const check = setInterval(() => {
-			if (!auth.initialized) return;
-			clearInterval(check);
-			if (!auth.isAuthenticated) {
-				goto('/login');
-				return;
-			}
+		if (auth.isAuthenticated) {
 			startSetup();
-		}, 50);
+		}
 	});
 
 	async function startSetup() {
@@ -81,6 +86,10 @@
 </script>
 
 <div class="mx-auto max-w-lg px-4 py-12">
+	<Button variant="ghost" onclick={() => goto('/settings')} class="mb-4 -ml-4 h-8 px-2 text-muted-foreground">
+		<ArrowLeft class="mr-2 size-4" />
+		Back to Settings
+	</Button>
 	<h1 class="mb-6 text-2xl font-bold">Enable Two-Factor Authentication</h1>
 
 	{#if enabled}
@@ -95,7 +104,7 @@
 				>
 			</CardHeader>
 			<CardFooter class="justify-center">
-				<Button onclick={() => goto('/dashboard')}>Back to dashboard</Button>
+				<Button onclick={() => goto('/settings')}>Back to Settings</Button>
 			</CardFooter>
 		</Card>
 	{:else}

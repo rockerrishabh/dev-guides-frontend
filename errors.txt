@@ -1,0 +1,17 @@
+
+> dev-guides-frontend@0.0.1 check
+> svelte-kit sync && svelte-check --tsconfig ./tsconfig.json
+
+Loading svelte-check in workspace: e:\dev-guides\frontend
+Getting Svelte diagnostics...
+
+e:\dev-guides\frontend\[32msrc\routes\settings\+page.svelte[39m:299:13
+[33mWarn[39m: `<svelte:component>` is deprecated in runes mode ΓÇö components are dynamic by default
+https://svelte.dev/e/svelte_component_deprecated (svelte)
+[36m											<div class="rounded-full bg-muted p-2">
+												[35m<svelte:component this={getUAIcon(session.user_agent)} class="size-5" />[36m
+											</div>[39m
+
+====================================
+[33msvelte-check found 0 errors and 1 warning in 1 file
+[39m

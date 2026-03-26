@@ -11,16 +11,12 @@
 		CardContent
 	} from '$lib/components/ui/card';
 	import { User, ShieldCheck, Mail, Calendar } from '@lucide/svelte';
+	import { untrack } from 'svelte';
 
-	onMount(() => {
-		// Wait for auth to finish initialising before guarding.
-		const check = setInterval(() => {
-			if (!auth.initialized) return;
-			clearInterval(check);
-			if (!auth.isAuthenticated) {
-				goto('/login');
-			}
-		}, 50);
+	$effect(() => {
+		if (auth.initialized && !auth.isAuthenticated) {
+			untrack(() => goto('/login'));
+		}
 	});
 </script>
 

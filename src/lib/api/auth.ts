@@ -71,8 +71,10 @@ export async function login(input: LoginInput): Promise<LoginResult> {
 		throw new Error(message);
 	}
 
+	console.log('Login response status:', res.status);
 	if (res.status === 202) {
 		const data: Login2FA = await res.json();
+		console.log('Login result: 2FA required', data);
 		return { type: '2fa', token: data.temporary_token };
 	}
 
@@ -206,6 +208,12 @@ export async function enable2FA(input: Enable2FAInput): Promise<void> {
 	});
 }
 
+export async function disable2FA(): Promise<void> {
+	await apiFetch('/auth/2fa/disable', {
+		method: 'POST'
+	});
+}
+
 // ─── Password Reset ──────────────────────────────────────────────────────────
 
 export async function forgotPassword(email: string): Promise<{ message: string }> {
@@ -226,5 +234,46 @@ export async function resetPassword(input: ResetPasswordInput): Promise<{ messag
 		method: 'POST',
 		body: JSON.stringify(input),
 		skipAuth: true
+	});
+}
+// ─── Sessions ───────────────────────────────────────────────────────────────
+
+export interface Session {
+	id: string;
+	user_agent: string | null;
+	ip_address: string | null;
+	expires_at: string;
+	created_at: string;
+	is_current: boolean;
+}
+
+export async function getSessions(): Promise<Session[]> {
+	return apiFetch<Session[]>('/auth/sessions');
+}
+
+export async function terminateSession(id: string): Promise<void> {
+	await apiFetch(`/auth/sessions/${id}`, { method: 'DELETE' });
+}
+
+// ─── Account Settings ────────────────────────────────────────────────────────
+
+export interface ChangePasswordInput {
+	current_password: string;
+	new_password: string;
+}
+
+export async function changePassword(input: ChangePasswordInput): Promise<void> {
+	await apiFetch('/auth/change-password', {
+		method: 'POST',
+		body: JSON.stringify(input)
+	});
+}
+
+export async function updateAccount(data: { name: string }): Promise<User> {
+	// This endpoint doesn't exist yet, we'll need to add it or use /profile
+	// For now let's assume /auth/me handles PATCH for basic info
+	return apiFetch<User>('/auth/me', {
+		method: 'PATCH',
+		body: JSON.stringify(data)
 	});
 }

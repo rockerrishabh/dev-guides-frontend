@@ -19,14 +19,17 @@
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { Spinner } from '$lib/components/ui/spinner';
-	import { untrack } from 'svelte';
+	import { untrack, tick } from 'svelte';
 
 	let submitting = $state(false);
 	let apiError = $state<string | null>(null);
 
 	$effect(() => {
 		if (auth.isAuthenticated && auth.initialized) {
-			untrack(() => goto('/dashboard'));
+			untrack(async () => {
+				await tick();
+				goto('/dashboard', { replaceState: true });
+			});
 		}
 	});
 
@@ -47,16 +50,15 @@
 				});
 
 				if (result.type === '2fa') {
+					console.log('2FA required, redirecting via window.location');
 					// Redirect to 2FA page, carrying the temp token in URL state.
-					goto(
-						`/login/2fa?token=${encodeURIComponent(result.token)}&remember=${form.data.rememberMe}`
-					);
+					window.location.href = `/login/2fa?token=${encodeURIComponent(result.token)}&remember=${form.data.rememberMe}`;
 					return;
 				}
 
 				auth.setUser(result.data.user);
 				toast.success(`Welcome back, ${result.data.user.name}!`);
-				goto('/dashboard');
+				// Redirection is handled by the $effect above
 			} catch (e: unknown) {
 				apiError = e instanceof Error ? e.message : 'Login failed. Please try again.';
 			} finally {

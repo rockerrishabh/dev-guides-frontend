@@ -20,17 +20,27 @@
 	import { toast } from 'svelte-sonner';
 	import { Spinner } from '$lib/components/ui/spinner';
 	import { ShieldCheck } from '@lucide/svelte';
-	import { untrack } from 'svelte';
+	import { untrack, tick } from 'svelte';
 
-	$effect(() => {
-		if (auth.isAuthenticated && auth.initialized) {
-			untrack(() => goto('/dashboard'));
-		}
-	});
 
 	// Read the temporary_token and remember_me from query params.
 	const temporaryToken = $derived(page.url.searchParams.get('token') ?? '');
 	const rememberMe = $derived(page.url.searchParams.get('remember') === 'true');
+
+	$effect(() => {
+		console.log('2FA page state:', { 
+			isAuthenticated: auth.isAuthenticated, 
+			initialized: auth.initialized,
+			token: temporaryToken 
+		});
+		if (auth.isAuthenticated && auth.initialized) {
+			console.log('2FA page: Redirecting to dashboard (already auth)');
+			untrack(async () => {
+				await tick();
+				goto('/dashboard', { replaceState: true });
+			});
+		}
+	});
 
 	const schema = z.object({
 		code: z
@@ -64,7 +74,7 @@
 				});
 				auth.setUser(result.user);
 				toast.success(`Welcome back, ${result.user.name}!`);
-				goto('/dashboard');
+				// Redirection is handled by the $effect above
 			} catch (e: unknown) {
 				apiError = e instanceof Error ? e.message : 'Invalid code. Please try again.';
 			} finally {

@@ -6,7 +6,7 @@
 	import ThemeToggle from './ThemeToggle.svelte';
 	import Input from './ui/input/input.svelte';
 	import * as Drawer from './ui/drawer';
-	import { ChevronDown, Menu, X, LogOut, LayoutDashboard } from '@lucide/svelte';
+	import { ChevronDown, Menu, X, LogOut, LayoutDashboard, Settings } from '@lucide/svelte';
 	import * as Sidebar from './ui/sidebar';
 	import { Collapsible } from 'bits-ui';
 	import Button from './ui/button/button.svelte';
@@ -16,12 +16,12 @@
 	const isMobile = new IsMobile();
 </script>
 
-<header class="border-b border-gray-200 dark:border-gray-800">
+<header class="sticky top-0 z-50 w-full border-b border-gray-200 bg-background/95 backdrop-blur-sm dark:border-gray-800">
 	<div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-2.5">
 		<Label>
 			<a href="/">Dev Guides</a>
 		</Label>
-		<div class="flex items-center gap-4">
+		<div class="flex items-center gap-2">
 			<Input type="search" placeholder="Search..." class="w-56 max-w-xs rounded-md" />
 			<nav>
 				<NavigationMenu.Root viewport={isMobile.current} class="hidden md:block">
@@ -105,6 +105,14 @@
 										</a>
 									{/snippet}
 								</DropdownMenu.Item>
+								<DropdownMenu.Item>
+									{#snippet child({ props })}
+										<a href="/settings" class="flex cursor-pointer items-center" {...props}>
+											<Settings class="mr-2 size-4" />
+											Settings
+										</a>
+									{/snippet}
+								</DropdownMenu.Item>
 								<DropdownMenu.Separator />
 								<DropdownMenu.Item
 									class="text-destructive focus:text-destructive"
@@ -171,6 +179,14 @@
 												<a href="/dashboard" {...props}>
 													<LayoutDashboard class="mr-2 size-4" />
 													Dashboard
+												</a>
+											{/snippet}
+										</Sidebar.MenuButton>
+										<Sidebar.MenuButton>
+											{#snippet child({ props })}
+												<a href="/settings" {...props}>
+													<Settings class="mr-2 size-4" />
+													Settings
 												</a>
 											{/snippet}
 										</Sidebar.MenuButton>

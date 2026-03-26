@@ -92,11 +92,13 @@ export async function apiFetch<T = unknown>(
 
 	if (!res.ok) {
 		let message = `Request failed with status ${res.status}`;
+		let text = '';
 		try {
-			const body = await res.json();
+			text = await res.text();
+			const body = JSON.parse(text);
 			message = body?.error ?? body?.message ?? message;
 		} catch {
-			// ignore parse errors
+			message = text || message;
 		}
 		throw new ApiRequestError(res.status, message);
 	}
@@ -104,5 +106,11 @@ export async function apiFetch<T = unknown>(
 	// 204 No Content
 	if (res.status === 204) return undefined as T;
 
-	return res.json() as Promise<T>;
+	const text = await res.text();
+	try {
+		return JSON.parse(text) as T;
+	} catch (e) {
+		console.error('Failed to parse JSON response:', text);
+		throw e;
+	}
 }
